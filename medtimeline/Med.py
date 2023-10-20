@@ -537,8 +537,11 @@ class ProceduresTimelineGenerator:
         # Construct the full path to the 'Data' folder and 'csv_file_name'
         echo_csv_path = config['Paths']['echo_csv_path']
 
-        # Load the CSV file
-        echo = pd.read_csv(echo_csv_path)
+        with open((echo_csv_path), 'rb') as f:
+            result = chardet.detect(f.read())  # or readline if the file is large 
+            encoding = result['encoding']
+        
+        echo= pd.read_csv(echo_csv_path, encoding=encoding)
 
         echo=echo.rename(columns={
             'start_datetime':'start_date',
@@ -733,6 +736,6 @@ def GenerateFullJourney(self):
     merged_df = pd.concat([med, surgery, labs, diagnoses, procedures])
     grouped_df = merged_df.groupby('admission_id').agg(lambda x: list(x))
     grouped_df.reset_index(inplace=True)
-    
+
     return grouped_df
 
