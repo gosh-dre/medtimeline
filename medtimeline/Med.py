@@ -4,6 +4,7 @@ import os
 import pandas as pd 
 import numpy as np 
 import json 
+import chardet
 
 
 
@@ -316,7 +317,6 @@ class TimelineGenerator:
         filtered_surg['discharge_date'] = pd.to_datetime(filtered_surg['discharge_date'])
         filtered_surg['end_date_surg'] = pd.to_datetime(filtered_surg['end_date_surg'])
 
-        #Initialize an empty list to store DataFrames
         result_df_surg_list = []
 
         # Iterate through unique admission_ids
@@ -719,23 +719,22 @@ class PatientJourneyGenerator:
         # Store the configuration values as class attributes
         self.data_path = config['Paths']['data_path']
 
+    def GenerateFullJourney(self):
+        timeline_generator = TimelineGenerator(config_path)
 
-def GenerateFullJourney(self):
-    config_file_path = '/Users/louiserigny/Desktop/home/medtimeline/medtimeline/config.json'
-    timeline_generator = TimelineGenerator(config_file_path)
+        med = timeline_generator.generate_medication_timeline()
+        surgery = timeline_generator.generate_surgery_timeline()
+        labs = timeline_generator.generate_labs_timeline()
+        diagnoses = timeline_generator.generate_diagnoses_timeline()
 
-    med=timeline_generator.generate_medication_timeline()
-    surgery=timeline_generator.generate_surgery_timeline()
-    labs=timeline_generator.generate_labs_timeline()
-    diagnoses=TimelineGenerator_diag.generate_diagnosis_timeline()
+        timeline_generator_procedures = ProceduresTimelineGenerator(config_path)
+    
+        procedures = timeline_generator_procedures.generate_procedure_timeline()
 
-    TimelineGenerator_procedures=ProceduresTimelineGenerator(config_file_path)
- 
-    procedures=TimelineGenerator_procedures.generate_procedure_timeline()
+        merged_df = pd.concat([med, surgery, labs, diagnoses, procedures])
+        grouped_df = merged_df.groupby('admission_id').agg(lambda x: list(x))
+        grouped_df.reset_index(inplace=True)
 
-    merged_df = pd.concat([med, surgery, labs, diagnoses, procedures])
-    grouped_df = merged_df.groupby('admission_id').agg(lambda x: list(x))
-    grouped_df.reset_index(inplace=True)
+        return grouped_df
 
-    return grouped_df
 
