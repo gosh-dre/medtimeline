@@ -733,5 +733,6 @@ def GenerateFullJourney(self):
     merged_df = pd.concat([med, surgery, labs, diagnoses, procedures])
     grouped_df = merged_df.groupby('admission_id').agg(lambda x: list(x))
     grouped_df.reset_index(inplace=True)
+    
     return grouped_df
 
