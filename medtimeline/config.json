@@ -1,18 +1,16 @@
 
-    {
-        "Paths": {
-            "data_path": "/Users/louiserigny/Desktop/home/medtimeline/medtimeline/Data",
-            "diagnosis_csv_path": "dummy_data_diagnoses.csv",
-            "medications_csv_path": "dummy_data_med.csv",
-            "surgery_csv_path": "dummy_data_surgerys.csv",
-            "labs_csv_path": "dummy_data_labs.csv",
-            "admissions_csv_path": "dummy_data_admissions.csv",
-            "echo_csv_path": "dummy_data_echo.csv",
-            "radiology_csv_path": "dummy_data_radiology.csv",
-            "procedure_components_csv_path": "dummy_data_procedure_components.csv",
-            "procedures_csv_path": "dummy_data_procedures.csv"
-           
-        }
+{
+    "Paths": {
+        "data_path": "/Users/louiserigny/Desktop/home/medtimeline/medtimeline/Data",
+        "diagnosis_csv_path": "dummy_data_diagnoses.csv",
+        "medications_csv_path": "dummy_data_med.csv",
+        "surgery_csv_path": "dummy_data_surgery.csv",
+        "labs_csv_path": "dummy_data_labs.csv",
+        "admissions_csv_path": "dummy_data_admissions.csv",
+        "echo_csv_path": "dummy_data_echo.csv",
+        "radiology_csv_path": "dummy_data_radiology.csv",
+        "procedure_components_csv_path": "dummy_data_procedure_components.csv",
+        "procedures_csv_path": "dummy_data_procedures.csv"
+       
     }
-
-
+}

@@ -11,23 +11,22 @@ import chardet
 class TimelineGenerator:
     def __init__(self, config_path):
         # Read the configuration from the JSON file
-        with open(config_path, 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
         
         # Store the configuration values as class attributes
         self.data_path = config['Paths']['data_path']
-        # self.log_path = config['Paths']['log_path']
 
 
 #loading functions
     def load_med(self):
-   # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        medications_csv_path = config['Paths']['medications_csv_path']
-
+        medications_csv_path = os.path.join(config['Paths']['data_path'], config['Paths']['medications_csv_path'])
+    
         # Load the CSV file
         med = pd.read_csv(medications_csv_path)
 
@@ -44,11 +43,11 @@ class TimelineGenerator:
     
     def load_surgery(self):
     # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        surgery_csv_path = config['Paths']['surgery_csv_path']
+        surgery_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['surgery_csv_path'])
 
         # Load the CSV file
         surgery = pd.read_csv(surgery_csv_path)
@@ -66,12 +65,12 @@ class TimelineGenerator:
         return surgery
     
     def load_diagnoses(self):
-        # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
-            config = json.load(json_file)
-
+        # Load configuration from config.json:
+        with open('config.json', 'r') as json_file:
+                config = json.load(json_file)
+                
         # Construct the full path to the 'Data' folder and 'dummy_data_diagnosis.csv'
-        diagnosis_csv_path = config['Paths']['diagnosis_csv_path']
+        diagnosis_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['diagnosis_csv_path'])
 
         # Load the CSV file
         diagnoses = pd.read_csv(diagnosis_csv_path)
@@ -228,11 +227,11 @@ class TimelineGenerator:
     
     def load_labs(self):
    # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        labs_csv_path = config['Paths']['labs_csv_path']
+        labs_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['labs_csv_path'])
 
         # Load the CSV file
         labs = pd.read_csv(labs_csv_path)
@@ -264,11 +263,11 @@ class TimelineGenerator:
 
     def load_admissions(self):
    # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        admissions_csv_path = config['Paths']['admissions_csv_path']
+        admissions_csv_path = os.path.join(config['Paths']['data_path'], config['Paths']['admissions_csv_path'])
 
         # Load the CSV file
         admissions = pd.read_csv(admissions_csv_path)
@@ -441,7 +440,7 @@ class TimelineGenerator:
 
             # Append the results for the current admission_id to the result DataFrame
 
-            result_df_diag_list.append(project_df_diag)
+            result_df_diag_list.append(project_df)
 
         # Use pd.concat to concatenate the list of DataFrames vertically
         result_df_diag = pd.concat(result_df_diag_list, ignore_index=True)
@@ -465,12 +464,12 @@ class TimelineGenerator:
         
     def generate_labs_timeline(self):
         labs=self.load_labs()
-        labs = self.load_labs()
+        admissions = self.load_admissions()
         labs = labs.merge(admissions, on='project_id', how='inner')
 
             # Convert date columns to datetime objects
-        labs['discharge_date'] = pd.to_datetime(labs['discharge_date'])
-        labs['end_date_labs'] = pd.to_datetime(labs['end_date_labs'])
+        labs['discharge_date'] = pd.to_datetime(labs['discharge_date'],format='mixed')
+        labs['end_date_labs'] = pd.to_datetime(labs['end_date_labs'],format='mixed')
 
         # Group by 'admission_id' and filter row so that collection dates later than the discharge date are not included
         filtered_labs = labs.groupby('admission_id').apply(lambda group: group[group['end_date_labs'] <= group['discharge_date']])
@@ -498,7 +497,7 @@ class TimelineGenerator:
 
             # Append the results for the current admission_id to the result DataFrame
 
-            result_df_labs_list.append(project_df_labs)
+            result_df_labs_list.append(project_df)
 
         # Use pd.concat to concatenate the list of DataFrames vertically
         result_df_labs = pd.concat(result_df_labs_list, ignore_index=True)
@@ -531,11 +530,11 @@ class ProceduresTimelineGenerator:
 
     def load_echo(self):
    # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        echo_csv_path = config['Paths']['echo_csv_path']
+        echo_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['echo_csv_path'])
 
         with open((echo_csv_path), 'rb') as f:
             result = chardet.detect(f.read())  # or readline if the file is large 
@@ -552,18 +551,18 @@ class ProceduresTimelineGenerator:
         
         echo=echo[['project_id','end_date','code','procedure_name']]
 
-        echo['end_date']=pd.to_datetime(echo['end_date']).dt.date    
-        echo['end_date']=pd.to_datetime(echo['end_date']).dt.date
+        echo['end_date']=pd.to_datetime(echo['end_date'],format='mixed').dt.date    
+        echo['end_date']=pd.to_datetime(echo['end_date'],format='mixed').dt.date
 
         return echo
     
     def load_radiology(self):
     # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        radiology_csv_path = config['Paths']['radiology_csv_path']
+        radiology_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['radiology_csv_path'])
 
         # Load the CSV file
         radiology = pd.read_csv(radiology_csv_path)
@@ -576,17 +575,17 @@ class ProceduresTimelineGenerator:
             })
         
         radiology=radiology[['project_id','end_date','code','procedure_name']]
-        radiology['end_date']=pd.to_datetime(radiology['end_date']).dt.date
+        radiology['end_date']=pd.to_datetime(radiology['end_date'],format='mixed').dt.date
 
         return radiology
     
     def load_procedure_components(self):
    # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        procedure_components_csv_path = config['Paths']['procedure_components_csv_path']
+        procedure_components_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['procedure_components_csv_path'])
 
         # Load the CSV file
         PC = pd.read_csv(procedure_components_csv_path)
@@ -600,20 +599,20 @@ class ProceduresTimelineGenerator:
             'ProcedureName':'procedure_name'
             })
         
-        PC=PC[['project_id','end_date','code','ProcedureName']]
+        PC=PC[['project_id','end_date','code','procedure_name']]
         
-        PC['end_date'] = pd.to_datetime(PC['end_date'])
-        PC['end_date']=pd.to_datetime(PC['end_date']).dt.date
+        PC['end_date'] = pd.to_datetime(PC['end_date'],format='mixed')
+        PC['end_date']=pd.to_datetime(PC['end_date'],format='mixed').dt.date
 
         return PC
     
     def load_procedure(self):
    # Load configuration from config.json
-        with open('medtimeline/config.json', 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
 
         # Construct the full path to the 'Data' folder and 'csv_file_name'
-        procedures_csv_path = config['Paths']['procedures_csv_path']
+        procedures_csv_path =  os.path.join(config['Paths']['data_path'], config['Paths']['procedures_csv_path'])
 
         # Load the CSV file
 
@@ -631,9 +630,9 @@ class ProceduresTimelineGenerator:
             })
         
         procedures=procedures.drop('proc_local_code',axis=1)
-        procedures=procedures[['project_id','end_date','code','proc_name']]
-        procedures['end_date'] = pd.to_datetime(procedures['end_date'])
-        procedures['end_date']=pd.to_datetime(procedures['end_date']).dt.date
+        procedures=procedures[['project_id','end_date','code','procedure_name']]
+        procedures['end_date'] = pd.to_datetime(procedures['end_date'], format='mixed')
+        procedures['end_date']=pd.to_datetime(procedures['end_date'],format='mixed').dt.date
 
         return procedures 
     
@@ -643,10 +642,14 @@ class ProceduresTimelineGenerator:
         radiology=self.load_radiology()
         PC=self.load_procedure_components()
         procedures=self.load_procedure() 
-        admissions = self.load_admissions()
+
+        with open('config.json', 'r') as json_file:
+            config = json.load(json_file)
+        
+        timeline_generator = TimelineGenerator(config)
+        admissions = timeline_generator.load_admissions()
 
         combined_df = pd.concat([radiology, procedures, PC], ignore_index=True)
-
 
         procedures_final=pd.merge(combined_df, echo, on=['project_id','end_date','procedure_name'], how='left')
         procedures_final=procedures_final.drop_duplicates()
@@ -690,7 +693,7 @@ class ProceduresTimelineGenerator:
 
             # Append the results for the current admission_id to the result DataFrame
 
-            result_df_proc_list.append(project_df_proc)
+            result_df_proc_list.append(project_df)
 
         # Use pd.concat to concatenate the list of DataFrames vertically
         result_df_proc = pd.concat(result_df_proc_list, ignore_index=True)
@@ -713,21 +716,22 @@ class ProceduresTimelineGenerator:
 class PatientJourneyGenerator:
     def __init__(self, config_path):
         # Read the configuration from the JSON file
-        with open(config_path, 'r') as json_file:
+        with open('config.json', 'r') as json_file:
             config = json.load(json_file)
         
         # Store the configuration values as class attributes
         self.data_path = config['Paths']['data_path']
 
     def GenerateFullJourney(self):
-        timeline_generator = TimelineGenerator(config_path)
+        timeline_generator = TimelineGenerator('config.json')
 
         med = timeline_generator.generate_medication_timeline()
         surgery = timeline_generator.generate_surgery_timeline()
         labs = timeline_generator.generate_labs_timeline()
         diagnoses = timeline_generator.generate_diagnoses_timeline()
+        
 
-        timeline_generator_procedures = ProceduresTimelineGenerator(config_path)
+        timeline_generator_procedures = ProceduresTimelineGenerator('config.json')
     
         procedures = timeline_generator_procedures.generate_procedure_timeline()
 
