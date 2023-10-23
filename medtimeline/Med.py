@@ -347,7 +347,9 @@ class TimelineGenerator:
 
         # Pivot the DataFrame and specify the custom column order
         pivoted_df_surg = grouped_surg.pivot(index='admission_id', columns='Day', values='code')[custom_column_order_surg].reset_index()
-        
+
+        pivoted_df_surg= pivoted_df_surg.reindex(sorted(pivoted_df_surg.columns), axis=1)
+
         return pivoted_df_surg
     
     def generate_medication_timeline(self):
@@ -401,6 +403,8 @@ class TimelineGenerator:
 
         # Pivot the DataFrame and specify the custom column order
         pivoted_df_med = grouped_med.pivot(index='admission_id', columns='Day', values='code')[custom_column_order_med].reset_index()
+
+        pivoted_df_med= pivoted_df_med.reindex(sorted(pivoted_df_med.columns), axis=1)
 
         return pivoted_df_med  # Return the DataFrame
 
@@ -458,6 +462,8 @@ class TimelineGenerator:
 
         # Pivot the DataFrame and specify the custom column order
         pivoted_df_diag = grouped_diag.pivot(index='admission_id', columns='Day', values='code')[custom_column_order_diag].reset_index()
+
+        pivoted_df_diag= pivoted_df_diag.reindex(sorted(pivoted_df_diag.columns), axis=1)
         
         return pivoted_df_diag
 
@@ -515,6 +521,8 @@ class TimelineGenerator:
 
         # Pivot the DataFrame and specify the custom column order
         pivoted_df_labs = grouped_labs.pivot(index='admission_id', columns='Day', values='code')[custom_column_order_labs].reset_index()
+        
+        pivoted_df_labs= pivoted_df_labs.reindex(sorted(pivoted_df_labs.columns), axis=1)
         
         return pivoted_df_labs
 
@@ -658,6 +666,7 @@ class ProceduresTimelineGenerator:
         procedures_final=procedures_final.rename(columns={'code_x':'code','end_date':'end_date_proc'})
         procedures_final=procedures_final.merge(admissions, on='project_id',how='inner')
 
+
         return procedures_final
     
     def generate_procedure_timeline(self):
@@ -711,6 +720,9 @@ class ProceduresTimelineGenerator:
 
         # Pivot the DataFrame and specify the custom column order
         pivoted_df_proc = grouped_proc.pivot(index='admission_id', columns='Day', values='code')[custom_column_order_proc].reset_index()
+
+        pivoted_df_proc= pivoted_df_proc.reindex(sorted(pivoted_df_proc.columns), axis=1)
+
         return pivoted_df_proc
 
 class PatientJourneyGenerator:
@@ -738,6 +750,8 @@ class PatientJourneyGenerator:
         merged_df = pd.concat([med, surgery, labs, diagnoses, procedures])
         grouped_df = merged_df.groupby('admission_id').agg(lambda x: list(x))
         grouped_df.reset_index(inplace=True)
+
+        grouped_df= grouped_df.reindex(sorted(grouped_df.columns), axis=1)
 
         return grouped_df
 
